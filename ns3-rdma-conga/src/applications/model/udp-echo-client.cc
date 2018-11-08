@@ -54,7 +54,7 @@ namespace ns3 {
 				UintegerValue(4000000),
 				MakeUintegerAccessor(&UdpEchoClient::m_chunk),
 				MakeUintegerChecker<uint32_t>())
-			.AddAttribute("Interval",
+			.AddAttribute("Interval", 
 				"The time to wait between packets",
 				TimeValue(Seconds(1.0)),
 				MakeTimeAccessor(&UdpEchoClient::m_interval),

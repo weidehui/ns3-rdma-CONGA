@@ -128,7 +128,7 @@ uint32_t
 Queue::GetNPackets (void) const
 {
   NS_LOG_FUNCTION_NOARGS ();
-  NS_LOG_LOGIC ("returns " << m_nPackets);
+  NS_LOG_LOGIC ("returns " << m_nPackets); 
   return m_nPackets;
 }
 

@@ -433,9 +433,9 @@ namespace ns3 {
 
 	void
 		QbbNetDevice::Receive(Ptr<Packet> packet)
-	{
+	{ 
 		NS_LOG_FUNCTION(this << packet);
-
+		//printf("The QbbNetDevice packetNodeId before is:%d\n", packet->GetNodeId());
 		if (m_receiveErrorModel && m_receiveErrorModel->IsCorrupt(packet))
 		{
 			// 
@@ -771,6 +771,7 @@ namespace ns3 {
 
 			PointToPointReceive(packet);
 		}
+		//printf("The QbbNetDevice packetNodeId after is:%d\n", packet->GetNodeId());
 	}
 
 	void
@@ -1061,6 +1062,7 @@ namespace ns3 {
 	bool
 		QbbNetDevice::TransmitStart(Ptr<Packet> p)
 	{
+		//std::cout << "queue:" << m_queue->GetNPackets() << std::endl;
 		NS_LOG_FUNCTION(this << p);
 		NS_LOG_LOGIC("UID is " << p->GetUid() << ")");
 		//
@@ -1221,7 +1223,11 @@ namespace ns3 {
 	{
 		return m_queue;
 	}
-
+	/*void 
+		QbbNetDevice::printqueue()
+	{
+		std::cout << m_queue;
+	}*/
 
 	void
 		QbbNetDevice::ResumeECNState(uint32_t inDev)

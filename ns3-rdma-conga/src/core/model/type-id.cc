@@ -692,6 +692,7 @@ TypeId::AddAttribute (std::string name,
 {
   NS_LOG_FUNCTION (this << name << help << &initialValue << accessor << checker);
   Singleton<IidManager>::Get ()->AddAttribute (m_tid, name, help, ATTR_SGC, initialValue.Copy (), accessor, checker);
+  //£¨IidManager£©               ->AddAttribute(m_tid, name, help, ATTR_SGC, initialValue.Copy(), accessor, checker);
   return *this;
 }
 

@@ -34,6 +34,8 @@
 #include "ns3/assert.h"
 #include "ns3/ptr.h"
 #include "ns3/deprecated.h"
+#include "ns3/nstime.h"
+#include "ns3/simulator.h"
 
 namespace ns3 {
 
@@ -210,18 +212,18 @@ class Packet : public SimpleRefCount<Packet>
 public:
 
 
-	//yibo
-	/*
-	inline void Unref (void) const
-	{
-		m_count--;
-		if (m_count == 0)
-		{
-			//std::cout<<"TEST\n";
-			//DELETER::Delete (static_cast<T*> (const_cast<SimpleRefCount *> (this)));
-		}
-	}
-	*/
+  //yibo
+  /*
+  inline void Unref (void) const
+  {
+    m_count--;
+    if (m_count == 0)
+    {
+      //std::cout<<"TEST\n";
+      //DELETER::Delete (static_cast<T*> (const_cast<SimpleRefCount *> (this)));
+    }
+  }
+  */
 
   /**
    * Create an empty packet with a new uid (as returned
@@ -571,6 +573,27 @@ public:
    * impetus to fix this general issue. */
   void SetNixVector (Ptr<NixVector>);
   Ptr<NixVector> GetNixVector (void) const; 
+ 
+  void SetCE(int cost);
+ 
+  int GetCE();
+  
+  void SetLBTag(uint32_t LBTag);
+  uint32_t GetLBTag();
+ 
+  void SetFBPath(uint32_t Path);
+  uint32_t GetFBPath();
+
+  void SetFBMetric(int Metric);
+  int GetFBMetric();
+  void SetNodeId(uint32_t nodeid);
+  uint32_t GetNodeId();
+
+  void SetTimeStamp(Time t);
+  Time GetTimeStamp();
+
+  void SetSeqs(uint32_t seqs);
+  uint32_t GetSeqs();
 
 private:
   Packet (const Buffer &buffer, const ByteTagList &byteTagList, 
@@ -586,6 +609,14 @@ private:
   /* Please see comments above about nix-vector */
   Ptr<NixVector> m_nixVector;
 
+  int m_CE; 
+  uint32_t m_LBTag;
+  uint32_t m_FBPath;
+  uint32_t m_FBMetric;
+  uint32_t m_nodeid; 
+
+  Time m_TimeStamp;
+  uint32_t m_seqs;
   static uint32_t m_globalUid;
 };
 

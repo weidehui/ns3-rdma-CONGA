@@ -62,7 +62,6 @@ public:
    * @param p Ptr to the received packet.
    */
   virtual void Receive (Ptr<Packet> p);
-
   /**
    * Send a packet to the channel by putting it to the queue
    * of the corresponding priority class
@@ -111,6 +110,7 @@ public:
 
    void SetQueue (Ptr<BEgressQueue> q);
    Ptr<BEgressQueue> GetQueue ();
+   //void printqueue();
 
 protected:
 

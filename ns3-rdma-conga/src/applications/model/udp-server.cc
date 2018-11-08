@@ -33,13 +33,16 @@
 
 #include "ns3/seq-ts-header.h"
 #include "udp-server.h"
+#include <fstream>
 
 namespace ns3 {
 
 NS_LOG_COMPONENT_DEFINE ("UdpServer");
 NS_OBJECT_ENSURE_REGISTERED (UdpServer);
 
-
+uint32_t nextreceive = 0;
+uint32_t nextreceivepre = 0;
+uint32_t flag = 0;
 TypeId
 UdpServer::GetTypeId (void)
 {
@@ -57,6 +60,16 @@ UdpServer::GetTypeId (void)
                    MakeUintegerAccessor (&UdpServer::GetPacketWindowSize,
                                          &UdpServer::SetPacketWindowSize),
                    MakeUintegerChecker<uint16_t> (8,256))
+	.AddAttribute("flow_size",
+		  "The size of flow(KB)",
+		  UintegerValue(32),
+		  MakeUintegerAccessor(&UdpServer::m_flowsize),
+		  MakeUintegerChecker<uint32_t>())
+	  .AddAttribute("flowstarttime",
+		  "The size of flow(packet)",
+		  TimeValue(Seconds(1)),
+		  MakeTimeAccessor(&UdpServer::m_flowst),
+		  MakeTimeChecker())
   ;
   return tid;
 }
@@ -130,7 +143,7 @@ UdpServer::StartApplication (void)
                                                    m_port);
       m_socket6->Bind (local);
     }
-
+  m_count = Simulator::Now();
   m_socket6->SetRecvCallback (MakeCallback (&UdpServer::HandleRead, this));
 
 }
@@ -152,13 +165,14 @@ UdpServer::HandleRead (Ptr<Socket> socket)
   NS_LOG_FUNCTION (this << socket);
   Ptr<Packet> packet;
   Address from;
+  uint32_t currentSequenceNumber;
   while ((packet = socket->RecvFrom (from)))
     {
       if (packet->GetSize () > 0)
         {
           SeqTsHeader seqTs;
           packet->RemoveHeader (seqTs);
-          uint32_t currentSequenceNumber = seqTs.GetSeq ();
+          currentSequenceNumber = seqTs.GetSeq ();
           if (InetSocketAddress::IsMatchingType (from))
             {
               NS_LOG_INFO ("TraceDelay: RX " << packet->GetSize () <<
@@ -181,8 +195,37 @@ UdpServer::HandleRead (Ptr<Socket> socket)
             }
 
           m_lossCounter.NotifyReceived (currentSequenceNumber);
+		  /*if (m_received == 0) {
+			  m_flowst= Simulator::Now();
+			  printf("The flowst is:%d", m_flowst);
+		  }*/
           m_received++;
+		  if (currentSequenceNumber == nextreceive)
+		  {
+			  nextreceive++;
+		  }
+		  if (flag == 0)
+		  {
+			  flag = 1;
+			  printtp();
+		  }
+		  if (m_lossCounter.GetlastMaxSeqNum() >= m_flowsize - 1)
+		  {
+			  m_flowet = Simulator::Now();
+			  m_flowtp = m_flowsize * 1000 * 8 / (m_flowet.GetSeconds() - m_flowst.GetSeconds());
+			  std::cout << "flowst:" << m_flowst << " flowet:" << m_flowet << " flowsize:" << m_flowsize << " flowtp:" << m_flowtp << " chazhi: " << (m_flowet.GetSeconds() - m_flowst.GetSeconds());
+			  std::cout << " m_received:" << m_received << " lost:" << m_lossCounter.GetLost() << "m_lastMaxSeqNum:" << m_lossCounter.GetlastMaxSeqNum() << std::endl;
+		  }
+		  std::ofstream outfile;
+		  outfile.open("D:\\data\\packetseq(72).txt", std::ios::app);
+		  outfile << Simulator::Now() << " " << m_lossCounter.GetlastMaxSeqNum() << " " << currentSequenceNumber << " " <<nextreceive<<" "<<m_received << std::endl;
+		  outfile.close();
+
         }
+	  /*if (Simulator::Now() - m_count > Seconds(0.5)) {
+
+		  std::cout << "The flowst is:" << m_flowst << "  The flowet is:" << m_flowet << "  The flowsize is:" << m_flowsize << "  The flowtp is:" << m_flowtp << "  The chaizhi is: " << (m_flowet.GetSeconds() - m_flowst.GetSeconds()) << std::endl;
+	  }*/
 	  /*
 	  if (m_received>4000)
 	  {
@@ -196,6 +239,18 @@ UdpServer::HandleRead (Ptr<Socket> socket)
 	  } 
 	  */
     }
+}
+
+void
+UdpServer::printtp()
+{
+	double temp = nextreceive - nextreceivepre;
+	nextreceivepre = nextreceive;
+	std::ofstream outfile;
+	outfile.open("D:\\data\\servertp(72).txt", std::ios::app);
+	outfile << Simulator::Now() << " " << nextreceive << " " << temp << " " << (double)temp * 1000 * 8 / 0.001 << std::endl;
+	outfile.close();
+	Simulator::Schedule(Seconds(0.001), &UdpServer::printtp, this);
 }
 
 void

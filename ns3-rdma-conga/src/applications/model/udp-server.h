@@ -74,6 +74,7 @@ public:
   void SetPacketWindowSize (uint16_t size);
 
   void SetRemote (Ipv4Address ip, uint16_t port);
+  void printtp();
 
 protected:
   virtual void DoDispose (void);
@@ -94,6 +95,13 @@ private:
   
   Address m_peerAddress;
   uint16_t m_peerPort;
+  uint32_t m_flowsize;
+
+  Time m_flowst;
+  Time m_flowet;
+  double m_flowtp;
+
+  Time m_count;
 
 };
 

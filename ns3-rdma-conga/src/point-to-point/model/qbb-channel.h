@@ -26,6 +26,7 @@
 #include "ns3/nstime.h"
 #include "ns3/data-rate.h"
 #include "ns3/traced-callback.h"
+#include "ns3/simulator.h"
 
 namespace ns3 {
 
@@ -93,6 +94,12 @@ public:
    */
   virtual Ptr<NetDevice> GetDevice (uint32_t i) const;
 
+  void dretimer();
+  void printqueue();
+  void doprintqueue1(Ptr<QbbNetDevice> dev);
+  void doprintqueue2(Ptr<QbbNetDevice> dev);
+  void doprintqueue3(Ptr<QbbNetDevice> dev);
+
 protected:
   /*
    * \brief Get the delay associated with this channel
@@ -121,13 +128,17 @@ protected:
    * the specified link
    */
   Ptr<QbbNetDevice> GetDestination (uint32_t i) const;
-
 private:
   // Each point to point link has exactly two net devices
   static const int N_DEVICES = 2;
 
   Time          m_delay;
   int32_t       m_nDevices;
+  uint32_t         CECount;
+  uint32_t          m_maxCE;
+  uint32_t			m_stage;
+  uint32_t      m_order;
+  uint32_t      m_orderpre;
 
   /**
    * The trace source for the packet transmission animation events that the 

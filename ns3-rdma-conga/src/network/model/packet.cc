@@ -17,12 +17,15 @@
  *
  * Author: Mathieu Lacage <mathieu.lacage@sophia.inria.fr>
  */
+#include "stdio.h "
 #include "packet.h"
 #include "ns3/assert.h"
 #include "ns3/log.h"
 #include "ns3/simulator.h"
 #include <string>
 #include <stdarg.h>
+#include "ns3/nstime.h"
+
 
 NS_LOG_COMPONENT_DEFINE ("Packet");
 
@@ -58,7 +61,7 @@ ByteTagIterator::Item::Item (TypeId tid, uint32_t start, uint32_t end, TagBuffer
   : m_tid (tid),
     m_start (start),
     m_end (end),
-    m_buffer (buffer)
+    m_buffer (buffer) 
 {
 }
 bool
@@ -136,16 +139,27 @@ Packet::Packet ()
      * global UID
      */
     m_metadata (static_cast<uint64_t> (Simulator::GetSystemId ()) << 32 | m_globalUid, 0),
-    m_nixVector (0)
+    m_nixVector (0),
+    m_CE(0),
+    m_LBTag(0),
+    m_FBPath(0),
+    m_FBMetric(0),
+    m_nodeid(-1)
 {
   m_globalUid++;
+  //printf("Packet ():%d\n", m_nodeid);
 }
 
 Packet::Packet (const Packet &o)
   : m_buffer (o.m_buffer),
     m_byteTagList (o.m_byteTagList),
     m_packetTagList (o.m_packetTagList),
-    m_metadata (o.m_metadata)
+    m_metadata (o.m_metadata),
+	m_CE(o.m_CE),
+	m_LBTag(o.m_LBTag),
+	m_FBPath(o.m_FBPath),
+	m_FBMetric(o.m_FBMetric),
+	m_nodeid(o.m_nodeid)
 {
   o.m_nixVector ? m_nixVector = o.m_nixVector->Copy ()
     : m_nixVector = 0;
@@ -164,6 +178,11 @@ Packet::operator = (const Packet &o)
   m_metadata = o.m_metadata;
   o.m_nixVector ? m_nixVector = o.m_nixVector->Copy () 
     : m_nixVector = 0;
+  m_CE = o.m_CE;
+  m_LBTag = o.m_LBTag;
+  m_FBPath = o.m_FBPath;
+  m_FBMetric = o.m_FBMetric;
+  m_nodeid = o.m_nodeid;
   return *this;
 }
 
@@ -178,19 +197,33 @@ Packet::Packet (uint32_t size)
      * global UID
      */
     m_metadata (static_cast<uint64_t> (Simulator::GetSystemId ()) << 32 | m_globalUid, size),
-    m_nixVector (0)
+    m_nixVector (0),
+    m_CE(0),
+    m_LBTag(0),
+    m_FBPath(0),
+    m_FBMetric(0), 
+    m_nodeid(-1)
 {
   m_globalUid++;
+ // printf("Packet (uint32_t size):%d\n", m_nodeid);
+
 }
 Packet::Packet (uint8_t const *buffer, uint32_t size, bool magic)
   : m_buffer (0, false),
     m_byteTagList (),
     m_packetTagList (),
     m_metadata (0,0),
-    m_nixVector (0)
+    m_nixVector (0),
+    m_CE(0),
+    m_LBTag(0),
+    m_FBPath(0),
+    m_FBMetric(0), 
+    m_nodeid(-1)
 {
   NS_ASSERT (magic);
   Deserialize (buffer, size);
+  //printf("Packet (uint8_t const *buffer, uint32_t size, bool magic):%d\n", m_nodeid);
+
 }
 
 Packet::Packet (uint8_t const*buffer, uint32_t size)
@@ -204,12 +237,19 @@ Packet::Packet (uint8_t const*buffer, uint32_t size)
      * global UID
      */
     m_metadata (static_cast<uint64_t> (Simulator::GetSystemId ()) << 32 | m_globalUid, size),
-    m_nixVector (0)
+    m_nixVector (0),
+    m_CE(0),
+    m_LBTag(0),
+    m_FBPath(0),
+    m_FBMetric(0), 
+    m_nodeid(-1)
 {
   m_globalUid++;
   m_buffer.AddAtStart (size);
   Buffer::Iterator i = m_buffer.Begin ();
   i.Write (buffer, size);
+//  printf("Packet (uint8_t const*buffer, uint32_t size):%d\n", m_nodeid);
+
 }
 
 Packet::Packet (const Buffer &buffer,  const ByteTagList &byteTagList, 
@@ -218,8 +258,15 @@ Packet::Packet (const Buffer &buffer,  const ByteTagList &byteTagList,
     m_byteTagList (byteTagList),
     m_packetTagList (packetTagList),
     m_metadata (metadata),
-    m_nixVector (0)
+    m_nixVector (0),
+    m_CE(0),
+    m_LBTag(0),
+    m_FBPath(0),
+    m_FBMetric(0),
+    m_nodeid(-1)
 {
+	//printf("Packet (const Buffer &buffer,  const ByteTagList &byteTagList,:%d\n", m_nodeid);
+
 }
 
 Ptr<Packet>
@@ -900,8 +947,62 @@ std::ostream& operator<< (std::ostream& os, const Packet &packet)
 template <>
 Ptr<Packet> Create (uint32_t a1)
 {
-	//std::cout<<a1<<"\n";
-	return Ptr<Packet> (new Packet (a1), false);
+  //std::cout<<a1<<"\n";
+  return Ptr<Packet> (new Packet (a1), false);
+}
+
+
+void Packet::SetCE(int cost)
+{
+  m_CE=cost;
+}
+
+int Packet::GetCE()
+{
+  return m_CE;
+}
+
+void Packet::SetFBPath(uint32_t Path){
+  m_FBPath=Path;
+}
+uint32_t Packet::GetFBPath(){
+  return m_FBPath;
+}
+void Packet::SetFBMetric(int Metric){
+  m_FBMetric=Metric;
+}
+int Packet::GetFBMetric(){
+  return m_FBMetric;
+}
+void Packet::SetLBTag(uint32_t LBTag){
+  m_LBTag=LBTag;
+}
+uint32_t Packet::GetLBTag(){
+  return m_LBTag;
+}
+
+void Packet::SetNodeId(uint32_t nodeid){
+  m_nodeid=nodeid;
+}
+uint32_t Packet::GetNodeId(){
+  return m_nodeid;
+}
+void Packet::SetTimeStamp(Time t)
+{
+	m_TimeStamp = t;
+}
+Time Packet::GetTimeStamp()
+{
+	return m_TimeStamp;
+}
+void Packet::SetSeqs(uint32_t seqs)
+{
+	m_seqs = seqs;
+}
+
+uint32_t Packet::GetSeqs()
+{
+	return m_seqs;
 }
 
 

@@ -16,17 +16,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "ns3/simulator.h"
 #include "point-to-point-channel.h"
 #include "point-to-point-net-device.h"
 #include "ns3/trace-source-accessor.h"
 #include "ns3/packet.h"
-#include "ns3/simulator.h"
 #include "ns3/log.h"
 #include <iostream>
 
 NS_LOG_COMPONENT_DEFINE ("PointToPointChannel");
 
 namespace ns3 {
+const float alpha = 0.5;
 
 NS_OBJECT_ENSURE_REGISTERED (PointToPointChannel);
 
@@ -55,10 +56,18 @@ PointToPointChannel::PointToPointChannel()
     Channel (),
     m_delay (Seconds (0.)),
     m_nDevices (0)
+    //CECount(0)
 {
   NS_LOG_FUNCTION_NOARGS ();
+   //dretimer();
 }
 
+/*void
+PointToPointChannel::dretimer(){
+  CECount=CECount*alpha;
+  //EventId eid;
+  Simulator::Schedule(Seconds(10),&PointToPointChannel::dretimer,this);
+}*/
 void
 PointToPointChannel::Attach (Ptr<PointToPointNetDevice> device)
 {

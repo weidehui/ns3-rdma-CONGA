@@ -194,6 +194,9 @@ UdpClient::Send (void)
 	  seqTs.SetPG (m_pg);
 	  Ptr<Packet> p = Create<Packet> (m_size-14-10); // 14 : the size of the seqTs header, 10: the size of qbb header
 	  p->AddHeader (seqTs);
+	  p->SetSeqs(m_sent);
+	 // p->SetNodeId(-2);
+	 // printf("Create<Packet>,:%d\n", p->GetNodeId());
 
 	  std::stringstream peerAddressStringStream;
 	  if (Ipv4Address::IsMatchingType (m_peerAddress))

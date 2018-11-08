@@ -217,10 +217,28 @@ Ipv4StaticRouting::RemoveMulticastRoute (uint32_t index)
       tmp++;
     }
 }
+uint32_t int2ip1(Ipv4Address dest) {
+	//string s;
+	uint32_t ipint = dest.Get();
+	uint32_t tokenInt = 0;
+	uint32_t leftValue = ipint;
+	uint32_t result = 0;
+	for (int i = 0; i < 4; i++) {
+		int temp = pow(256, 3 - i);
+		tokenInt = leftValue / temp;
+		leftValue %= temp;
+		//    itoa(tokenInt, ipToken, 10); //non-standard function
+		if (i == 2) {
+			result = tokenInt;
+		}
+	}
+	return result;
+}
 
 Ptr<Ipv4Route>
 Ipv4StaticRouting::LookupStatic (Ipv4Address dest, Ptr<NetDevice> oif)
 {
+	//printf("I'm coming the static Routing\n ");
   NS_LOG_FUNCTION (this << dest << " " << oif);
   Ptr<Ipv4Route> rtentry = 0;
   uint16_t longest_mask = 0;
@@ -238,56 +256,60 @@ Ipv4StaticRouting::LookupStatic (Ipv4Address dest, Ptr<NetDevice> oif)
       return rtentry;
     }
 
-
-  for (NetworkRoutesI i = m_networkRoutes.begin (); 
-       i != m_networkRoutes.end (); 
-       i++) 
-    {
-      Ipv4RoutingTableEntry *j=i->first;
-      uint32_t metric =i->second;
-      Ipv4Mask mask = (j)->GetDestNetworkMask ();
-      uint16_t masklen = mask.GetPrefixLength ();
-      Ipv4Address entry = (j)->GetDestNetwork ();
-      NS_LOG_LOGIC ("Searching for route to " << dest << ", checking against route to " << entry << "/" << masklen);
-      if (mask.IsMatch (dest, entry)) 
-        {
-          NS_LOG_LOGIC ("Found global network route " << j << ", mask length " << masklen << ", metric " << metric);
-          if (oif != 0)
-            {
-              if (oif != m_ipv4->GetNetDevice (j->GetInterface ()))
-                {
-                  NS_LOG_LOGIC ("Not on requested interface, skipping");
-                  continue;
-                }
-            }
-          if (masklen < longest_mask) // Not interested if got shorter mask
-            {
-              NS_LOG_LOGIC ("Previous match longer, skipping");
-              continue;
-            }
-          if (masklen > longest_mask) // Reset metric if longer masklen
-            {
-              shortest_metric = 0xffffffff;
-            }
-          longest_mask = masklen;
-          if (metric > shortest_metric)
-            {
-              NS_LOG_LOGIC ("Equal mask length, but previous metric shorter, skipping");
-              continue;
-            }
-          shortest_metric = metric;
-          Ipv4RoutingTableEntry* route = (j);
-          uint32_t interfaceIdx = route->GetInterface ();
-          rtentry = Create<Ipv4Route> ();
-          rtentry->SetDestination (route->GetDest ());
-          rtentry->SetSource (SourceAddressSelection (interfaceIdx, route->GetDest ()));
-          rtentry->SetGateway (route->GetGateway ());
-          rtentry->SetOutputDevice (m_ipv4->GetNetDevice (interfaceIdx));
-        }
-    }
+  uint32_t result = 0;
+  //for (NetworkRoutesI i = m_networkRoutes.begin (); 
+  //     i != m_networkRoutes.end (); 
+  //     i++) 
+  //  { 
+  //    Ipv4RoutingTableEntry *j=i->first;
+  //    uint32_t metric =i->second;
+  //    Ipv4Mask mask = (j)->GetDestNetworkMask ();
+  //    uint16_t masklen = mask.GetPrefixLength ();
+  //    Ipv4Address entry = (j)->GetDestNetwork ();
+  //    NS_LOG_LOGIC ("Searching for route to " << dest << ", checking against route to " << entry << "/" << masklen);
+  //    if (mask.IsMatch (dest, entry)) 
+  //      {
+  //        NS_LOG_LOGIC ("Found global network route " << j << ", mask length " << masklen << ", metric " << metric);
+  //        if (oif != 0)
+  //          {
+  //            if (oif != m_ipv4->GetNetDevice (j->GetInterface ()))
+  //              {
+  //                NS_LOG_LOGIC ("Not on requested interface, skipping");
+  //                continue;
+  //              }
+  //          }
+  //        if (masklen < longest_mask) // Not interested if got shorter mask
+  //          {
+  //            NS_LOG_LOGIC ("Previous match longer, skipping");
+  //            continue;
+  //          }
+  //        if (masklen > longest_mask) // Reset metric if longer masklen
+  //          {
+  //            shortest_metric = 0xffffffff;
+  //          }
+  //        longest_mask = masklen;
+  //        if (metric > shortest_metric)
+  //          {
+  //            NS_LOG_LOGIC ("Equal mask length, but previous metric shorter, skipping");
+  //            continue;
+  //          }
+  //        shortest_metric = metric;
+  //        Ipv4RoutingTableEntry* route = (j);
+  //        uint32_t interfaceIdx = route->GetInterface ();
+  //        rtentry = Create<Ipv4Route> ();
+  //        rtentry->SetDestination (route->GetDest ());
+  //        rtentry->SetSource (SourceAddressSelection (interfaceIdx, route->GetDest ()));
+		//  result = int2ip1(SourceAddressSelection(interfaceIdx, route->GetDest()));
+  //        rtentry->SetGateway (route->GetGateway ());
+  //        rtentry->SetOutputDevice (m_ipv4->GetNetDevice (interfaceIdx));
+  //      }
+  //  }
   if (rtentry != 0)
     {
+	  printf("Find the static rtentry\n ");
+	  printf("The lookupstatic nodeid is:%d\n", result);
       NS_LOG_LOGIC ("Matching route via " << rtentry->GetGateway () << " at the end");
+
     }
   else
     {

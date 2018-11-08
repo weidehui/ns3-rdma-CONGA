@@ -19,6 +19,7 @@
 #ifndef POINT_TO_POINT_CHANNEL_H
 #define POINT_TO_POINT_CHANNEL_H
 
+#include "ns3/simulator.h"
 #include <list>
 #include "ns3/channel.h"
 #include "ns3/ptr.h"
@@ -91,7 +92,8 @@ public:
    * \returns Ptr to NetDevice requested
    */
   virtual Ptr<NetDevice> GetDevice (uint32_t i) const;
-
+ // virtual void dretimer();
+ 
 protected:
   /*
    * \brief Get the delay associated with this channel
@@ -127,6 +129,7 @@ private:
 
   Time          m_delay;
   int32_t       m_nDevices;
+  //float         CECount;
 
   /**
    * The trace source for the packet transmission animation events that the 

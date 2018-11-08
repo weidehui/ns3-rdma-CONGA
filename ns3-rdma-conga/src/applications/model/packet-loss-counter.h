@@ -37,11 +37,12 @@ class PacketLossCounter
 {
 public:
   PacketLossCounter (uint8_t bitmapSize);
-  ~PacketLossCounter ();
+  ~PacketLossCounter (); 
   void NotifyReceived (uint32_t seq);
   uint32_t GetLost (void) const;
   uint16_t GetBitMapSize (void) const;
   void SetBitMapSize (uint16_t size);
+  uint32_t GetlastMaxSeqNum();
 private:
   bool GetBit (uint32_t seqNum);
   void SetBit (uint32_t seqNum, bool val);

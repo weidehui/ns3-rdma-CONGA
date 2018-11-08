@@ -48,7 +48,7 @@ UdpEchoServerHelper::SetAttribute (
 }
 
 ApplicationContainer
-UdpEchoServerHelper::Install (Ptr<Node> node) const
+UdpEchoServerHelper::Install (Ptr<Node> node) const 
 {
   return ApplicationContainer (InstallPriv (node));
 }

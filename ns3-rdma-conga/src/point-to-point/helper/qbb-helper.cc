@@ -176,6 +176,8 @@ QbbHelper::EnableAsciiInternal (
 	  //std::cout<<"Hook Callback\n";
 
       Ptr<BEgressQueue> queue = device->GetQueue ();
+	 /* Ptr<NetDevice> nd1;
+	  Ptr<QbbNetDevice> devA = nd1->GetObject<QbbNetDevice>();*/
       asciiTraceHelper.HookDefaultEnqueueSinkWithoutContext<BEgressQueue> (queue, "Enqueue", theStream);
       asciiTraceHelper.HookDefaultDropSinkWithoutContext<BEgressQueue> (queue, "Drop", theStream);
       asciiTraceHelper.HookDefaultDequeueSinkWithoutContext<BEgressQueue> (queue, "Dequeue", theStream);
@@ -282,7 +284,7 @@ QbbHelper::Install (Ptr<Node> a, Ptr<Node> b)
   devB->Attach (channel);
   container.Add (devA);
   container.Add (devB);
-
+ // channel->printqueue();
   return container;
 }
 

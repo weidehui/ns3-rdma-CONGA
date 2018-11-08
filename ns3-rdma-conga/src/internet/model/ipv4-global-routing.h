@@ -28,6 +28,7 @@
 #include "ns3/ipv4.h"
 #include "ns3/ipv4-routing-protocol.h"
 #include "ns3/random-variable-stream.h"
+#include "ns3/simulator.h"
 
 namespace ns3 {
 
@@ -220,19 +221,40 @@ public:
   * \return the number of stream indices assigned by this model
   */
   int64_t AssignStreams (int64_t stream);
+  int SelectPath(uint32_t destid);
+  void printtpP0();
+  void printtpP1();
+  void printtpAll();
+  void Setforwardtb(int id, int Path, int order);
+  void dretimer0();
+  //void dretimer1();
 
 protected:
   void DoDispose (void);
 
 private:
+  bool m_randomRouting;
   /// Set to true if packets are randomly routed among ECMP; set to false for using only one route consistently
-  bool m_randomEcmpRouting;
+  bool m_CONGARouting;
   /// Set to true if flows are randomly routed among ECMP; set to false for using only one route consistently
   bool m_flowEcmpRouting;
   /// Set to true if this interface should respond to interface events by globallly recomputing routes 
   bool m_respondToInterfaceEvents;
   /// A uniform random number generator for randomly routing packets among ECMP 
   Ptr<UniformRandomVariable> m_rand;
+
+  uint32_t m_n;
+  uint32_t m_s;
+  uint32_t m_e;
+
+  uint32_t CECount0=0;
+  uint32_t CECount1=0;
+  uint32_t      m_maxCE=62000;
+  uint32_t	    m_stage=32;
+  uint32_t      m_order0;
+  uint32_t      m_order1;
+  int flagdre = 0;
+
 
   typedef std::list<Ipv4RoutingTableEntry *> HostRoutes;
   typedef std::list<Ipv4RoutingTableEntry *>::const_iterator HostRoutesCI;
@@ -246,7 +268,8 @@ private:
 
   // - Ptr<Ipv4Route> LookupGlobal (Ipv4Address dest, Ptr<NetDevice> oif = 0);
   uint32_t GetTupleValue (const Ipv4Header &header, Ptr<const Packet> ipPayload);
-  Ptr<Ipv4Route> LookupGlobal (const Ipv4Header &header, Ptr<const Packet> ipPayload, Ptr<NetDevice> oif = 0);
+  Ptr<Ipv4Route> LookupGlobal (const Ipv4Header &header, Ptr<Packet> ipPayload, Ptr<NetDevice> oif = 0);
+  Ptr<Ipv4Route> LookupGlobal1 (const Ipv4Header &header,Ptr<Packet> p, Ipv4Address dest, Ptr<NetDevice> oif = 0);
 
   HostRoutes m_hostRoutes;
   NetworkRoutes m_networkRoutes;
@@ -254,6 +277,25 @@ private:
   
   
   Ptr<Ipv4> m_ipv4;
+
+  uint32_t **forwardtb;
+  /*int **forwardtb=new int *[m_n];
+  //int i;
+  for(int i=0; i<m_n; i++ ){
+    forwardtb[i]=new int[m_n];
+    for(int j=0;j<m_n;j++){
+      forwardtb[i][j]=0;
+    }
+  }*/
+  uint32_t **cachetb;
+  uint32_t *flagiter;
+  struct flowlettable
+  {
+	  uint32_t port;
+	  Time agebit;
+  };
+  flowlettable *ftb;
+  Time m_flowInterval=Seconds(0.001);
 };
 
 } // Namespace ns3

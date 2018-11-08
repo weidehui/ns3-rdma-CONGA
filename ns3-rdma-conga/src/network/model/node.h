@@ -320,6 +320,39 @@ protected:
   std::vector<Ptr<Application> > m_applications;
   ProtocolHandlerList m_handlers;
   DeviceAdditionListenerList m_deviceAdditionListeners;
+
+//dehui
+private:
+	uint32_t Pod;//属于哪个Pod
+	struct ident
+	{
+		uint32_t prefix;//前缀
+		uint32_t suffix;//后缀
+	};
+	struct linkitem //链路表
+	{
+		ident from;
+		ident to;
+	};
+	struct routingitem //路由表
+	{
+		ident path[5]; //将表项存为一个数组，可以直接带入数据包
+		uint32_t order;
+	};
+	struct mappingitem
+	{
+		float scope;
+		uint32_t order;
+		uint32_t wroute;//all就是1,1/10k就是10k，1/100就是100
+		uint32_t wdest;
+	};
+	linkitem *linktb;
+	mappingitem *mappingtb;
+	struct routingdesttb
+	{
+		routingitem *routingtb;
+	};
+	routingdesttb *Podtb;
 };
 
 } // namespace ns3

@@ -66,7 +66,7 @@ PacketLossCounter::SetBitMapSize (uint16_t winSize)
 uint32_t
 PacketLossCounter::GetLost () const
 {
-  return m_lost;
+  return m_lost; 
 }
 
 bool
@@ -117,5 +117,11 @@ PacketLossCounter::NotifyReceived (uint32_t seqNum)
     {
       m_lastMaxSeqNum = seqNum;
     }
+}
+uint32_t
+PacketLossCounter::GetlastMaxSeqNum()
+{
+	
+	return m_lastMaxSeqNum;
 }
 }

@@ -544,6 +544,25 @@ Ipv4L3Protocol::SendWithHeader (Ptr<Packet> packet,
   SendRealOut (route, packet, ipHeader);
 }
 
+uint32_t int2ip2(Ipv4Address dest) {
+	//string s;
+	uint32_t ipint = dest.Get();
+	uint32_t tokenInt = 0;
+	uint32_t leftValue = ipint;
+	uint32_t result = 0;
+	for (int i = 0; i < 4; i++) {
+		int temp = pow(256, 3 - i);
+		tokenInt = leftValue / temp;
+		leftValue %= temp;
+		//    itoa(tokenInt, ipToken, 10); //non-standard function
+		if (i == 2) {
+			result = tokenInt;
+		}
+	}
+	return result;
+}
+
+
 void
 Ipv4L3Protocol::Send (Ptr<Packet> packet,
                       Ipv4Address source,
@@ -658,6 +677,8 @@ Ipv4L3Protocol::Send (Ptr<Packet> packet,
   Ptr<Ipv4Route> newRoute;
   if (m_routingProtocol != 0)
     {
+	  packet->SetNodeId(int2ip2(source));
+	  printf("The RouteOutput SetNodeId is:%d", int2ip2(source));
       newRoute = m_routingProtocol->RouteOutput (packet, ipHeader, oif, errno_);
     }
   else
